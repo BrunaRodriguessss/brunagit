@@ -1,44 +1,54 @@
-const express = require("express")
-const fs= require("fs")
+const express = require('express')
 const app = express()
-app.use(express.urlencoded({extended:true}))
+const mongoose = require('mongoose')
+app.use(express.json())
+
+const dotenv=require('dotenv')
 
 
-app.set('view engine', 'ejs')
-     
-app.post('/home', function(req,res){
-  const salvar = JSON.stringify(req.body)
-  fs.writeFileSync(`${req.body.email}.json`, salvar, (err) =>{
-   if(err){
-        res.send({message: err})
-   }else{
-         res.send({message: 'ok'})  
-   }
-  } )
- 
+if(process.env.OMG === "DEV"){
+    dotenv.config({path:'./config/.env.dev'})
+}
+if(process.env.OMG === "PROD"){
+    dotenv.config({path:'./config/.env.prod'})
+}
+
+console.log(process.env.NOME);
+
+const modelodeUsuario = mongoose.model('contas', new mongoose.Schema({
+    email: String,
+    password: String
+}))
+
+
+mongoose.connect(process.env.URL)
+ .then(()=>{
+
+app.get('/get/:email', async (req,res)=>{
+    const usuarioEncontrado = await modelodeUsuario.findOne({email: req.params.email})
+    console.log(usuarioEncontrado);
+    res.send(usuarioEncontrado)
 })
-app.get('/lista', function(req, res) {
-   fs.readdir(__dirname, (err,files)=>{
-     var dados = files.filter(file => file.includes('@') && file.includes('.json'))
-     res.send( {dados: dados})
-   
-   })
- })
-app.get('/dados/:email', (req,res)=>{
-   var dados = req.params
-   var dadosfinais = JSON.parse(fs.readFileSync(dados.email))
-   res.send({dados: dadosfinais})
-})
-app.get('/apagar/:email', (req,res)=>{
-   var dados = req.params
-   if (fs.existsSync(dados.email)){
-        res.send({message: 'ok'})
-       fs.rmSync(dados.email)
-   }else{
-        res.send({message: 'ixi, deu erro'})
-   }
+  
+app.post('/post',async (req,res) =>{
+    const usuarioCriado = await modelodeUsuario.create({email: req.body.email, password: req.body.password})
+    res.send(usuarioCriado)
 })
 
-app.listen(9000, () =>{
-   console.log("opa, rodou certin")
-}) 
+app.put('/put', async (req,res)=>{
+    const usuarioAtualizado = await modelodeUsuario.findOneAndUpdate({email: req.body.email, password: req.body.password}, {email: req.body.newemail, password: req.body.newpassword})
+    res.send(usuarioAtualizado)
+})
+  
+app.delete('/delete', async (req,res)=>{
+    const usuarioDeletado = await modelodeUsuario.deleteOne({email: req.body.email, password: req.body.password})
+    res.send(usuarioDeletado)
+})  
+
+app.use((req,res)=>{
+    res.send('Não foi possível encontrar sua rota')
+})
+
+app.listen(2800, ()=>console.log(`o servidor ta rodando, é nessa porta aqui ó: ${2800}`))
+
+})

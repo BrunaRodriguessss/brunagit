@@ -23,9 +23,9 @@ const modelodeUsuario = mongoose.model('contas', new mongoose.Schema({
 mongoose.connect('mongodb://127.0.0.1:27017/hehe') // process.env.URL
  .then(()=>{
 
-app.post('/get/:email', async (req,res)=>{
+app.post('/get/', async (req,res)=>{
     const usuarioEncontrado = await modelodeUsuario.findOne({email: req.body.email, password: req.body.password})
-    if(usuarioEncontrado === nul){
+    if(usuarioEncontrado === null){
        return res.send("eita, essa conta não exite")
     }
     console.log(usuarioEncontrado);

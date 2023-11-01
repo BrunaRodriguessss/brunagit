@@ -13,7 +13,6 @@ if(process.env.OMG === "PROD"){
     dotenv.config({path:'./config/.env.prod'})
 }
 
-console.log(process.env.NOME);
 
 const modelodeUsuario = mongoose.model('contas', new mongoose.Schema({
     email: String,
@@ -21,7 +20,7 @@ const modelodeUsuario = mongoose.model('contas', new mongoose.Schema({
 }))
 
 
-mongoose.connect(process.env.URL)
+mongoose.connect('mongodb://127.0.0.1:27017/hehe') // process.env.URL
  .then(()=>{
 
 app.get('/get/:email', async (req,res)=>{
@@ -37,7 +36,7 @@ app.post('/post',async (req,res) =>{
 
 app.put('/put', async (req,res)=>{
     const usuarioAtualizado = await modelodeUsuario.findOneAndUpdate({email: req.body.email, password: req.body.password}, {email: req.body.newemail, password: req.body.newpassword})
-    res.send(usuarioAtualizado)
+    res.send({ message: "dados atualizados com sucesso!" })
 })
   
 app.delete('/delete', async (req,res)=>{

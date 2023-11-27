@@ -19,10 +19,12 @@ const modelodeUsuario = mongoose.model('contas', new mongoose.Schema({
     password: String
 }))
 
+const modelodeResenha = mongoose.model('resenhas', new mongoose.Schema({
+    texto: String
+}))
 
 mongoose.connect('mongodb://127.0.0.1:27017/hehe') // process.env.URL
  .then(()=>{
-
 app.post('/get/', async (req,res)=>{
     const usuarioEncontrado = await modelodeUsuario.findOne({email: req.body.email, password: req.body.password})
     if(usuarioEncontrado === null){
@@ -45,6 +47,29 @@ app.put('/put', async (req,res)=>{
 app.delete('/delete', async (req,res)=>{
     const usuarioDeletado = await modelodeUsuario.deleteOne({email: req.body.email, password: req.body.password})
     res.send(usuarioDeletado)
+})  
+
+app.post('/getResenhas/', async (req,res)=>{
+    const resenhaEncontrada = await modelodeResenha.findOne({texto: req.body.texto})
+    if(resenhaEncontrada === null){
+       return res.send("eita, essa resenha não exite")
+    }
+    res.send(resenhaEncontrada)
+})
+  
+app.post('/postResenhas',async (req,res) =>{
+    const resenhaCriada = await modelodeResenha.create({texto: req.body.texto})
+    res.send(resenhaCriada)
+})
+
+app.put('/putResenhas', async (req,res)=>{
+    const resenhaAtualizada = await modelodeResenha.findOneAndUpdate({texto: req.body.texto}, {resenha: req.body.newResenha})
+    res.send({ message: "resenha atualizada com sucesso!" })
+})
+  
+app.delete('/deleteResenhas', async (req,res)=>{
+    const resenhaDeletada = await modelodeResenha.deleteOne({texto: req.body.texto})
+    res.send(resenhaDeletada)
 })  
 
 app.use((req,res)=>{

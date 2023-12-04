@@ -50,7 +50,12 @@ app.delete('/delete', async (req,res)=>{
 })  
 
 app.post('/getResenhas/', async (req,res)=>{
-    const resenhaEncontrada = await modelodeResenha.findOne({texto: req.body.texto})
+    const usuarioEncontrado = await modelodeUsuario.findOne({email: req.body.email, password: req.body.password})
+    if(usuarioEncontrado === null){
+       return res.send("eita, essa conta não exite")
+    }
+
+    const resenhaEncontrada = await modelodeResenha.findOne({texto: req.body.texto, _id: usuarioEncontrado.id})
     if(resenhaEncontrada === null){
        return res.send("eita, essa resenha não exite")
     }
@@ -58,7 +63,12 @@ app.post('/getResenhas/', async (req,res)=>{
 })
   
 app.post('/postResenhas',async (req,res) =>{
-    const resenhaCriada = await modelodeResenha.create({texto: req.body.texto})
+    const usuarioEncontrado = await modelodeUsuario.findOne({email: req.body.email, password: req.body.password})
+    if(usuarioEncontrado === null){
+       return res.send("eita, essa conta não exite")
+    }
+
+    const resenhaCriada = await modelodeResenha.create({texto: req.body.texto, _id: usuarioEncontrado.id})
     res.send(resenhaCriada)
 })
 
@@ -68,7 +78,12 @@ app.put('/putResenhas', async (req,res)=>{
 })
   
 app.delete('/deleteResenhas', async (req,res)=>{
-    const resenhaDeletada = await modelodeResenha.deleteOne({texto: req.body.texto})
+    const usuarioEncontrado = await modelodeUsuario.findOne({email: req.body.email, password: req.body.password})
+    if(usuarioEncontrado === null){
+       return res.send("eita, essa conta não exite")
+    }
+
+    const resenhaDeletada = await modelodeResenha.deleteOne({texto: req.body.texto, _id: usuarioEncontrado.id})
     res.send(resenhaDeletada)
 })  
 
